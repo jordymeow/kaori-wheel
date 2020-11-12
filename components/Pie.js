@@ -1,4 +1,3 @@
-import gsap from 'gsap/dist/gsap';
 import { useEffect, useRef } from 'react';
 
 const Pie = (props) => {
@@ -14,20 +13,6 @@ const Pie = (props) => {
     const angle = index * slice;
     const x = center + radius * Math.sin(angle);
     const y = center - radius * Math.cos(angle);
-    gsap.set(ref.current, {
-      rotation: angle + "_rad",
-      xPercent: -50,
-      yPercent: -50,
-      x,
-      y,
-    });
-    // gsap.set(textRef.current, {
-    //   rotation: angle + "_rad",
-    //   xPercent: -50,
-    //   yPercent: -50,
-    //   x,
-    //   y,
-    // });
   }, []);
 
   return (

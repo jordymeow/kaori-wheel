@@ -1,9 +1,4 @@
 import { useEffect, useRef } from "react";
-import gsap from 'gsap/dist/gsap';
-import Draggable from 'gsap/dist/Draggable';
-// In order to use it, it needs membership.
-// @see: https://greensock.com/docs/v3/Plugins/InertiaPlugin
-// import InertiaPlugin from 'gsap/dist/InertiaPlugin';
 import Pie from './Pie';
 
 const AromaWheel = (props) => {
@@ -12,14 +7,6 @@ const AromaWheel = (props) => {
   const ref = useRef();
   const lengthListOfChildren = aromas.map(v => v.children.length);
   const totalLengthOfChildren = aromas.map(v => v.children.length).reduce((a, b) => a + b, 0);
-
-  useEffect(() => {
-    gsap.registerPlugin(Draggable);
-    Draggable.create(ref.current, {
-      type: "rotation",
-      inertia: true // It does not work without membership.
-    });
-  }, []);
 
   const getPieIndex = (index) => {
     if (index === 0) return index;
