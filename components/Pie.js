@@ -1,63 +1,46 @@
 import { useEffect, useRef } from 'react';
+import Slice from './Slice';
 
 const Pie = (props) => {
-  const { index, total, contents, center, radius } = props;
-
-  const ref = useRef();
-  // const textRef = useRef();
-  const color = contents.children[0].color;
-  const pieAngle = contents.children.length / total * 360;
-
-  useEffect(() => {
-    const slice = (2 * Math.PI) / total;
-    const angle = index * slice;
-    const x = center + radius * Math.sin(angle);
-    const y = center - radius * Math.cos(angle);
-  }, []);
+  const { labels, hole, radius, data, stroke, strokeWidth, diameter } = props;
+	const sum = data.map(v => v.value || 1).reduce((a, b) => a + b, 0);
+  let startAngle = 0;
 
   return (
     <>
-      <div ref={ref} className="wheel-part">
-        <div className="wheel-part-content">{contents.name}</div>
-      </div>
+      {data.map((slice, sliceIndex) => {
+        const value = slice.value || 1;
+        const nextAngle = startAngle;
+        const angle = (value / sum) * 360;
+        const percent = (value / sum) * 100;
+        const key = Math.random().toString(36).substring(5);
+        startAngle += angle;
+
+        return <Slice
+          key={key}
+          id={key}
+          value={value}
+          percent={percent}
+          percentValue={percent.toFixed(1)}
+          startAngle={nextAngle}
+          angle={angle}
+          diameter={diameter || (radius * 2)}
+          radius={radius}
+          hole={radius - hole}
+          trueHole={hole}
+          showLabel={labels}
+          label={slice.name}
+          labelColor={slice.labelColor || '#fff'}
+          fill={slice.color}
+          stroke={stroke}
+          strokeWidth={strokeWidth}
+        />
+      }) }
       <style jsx>{`
-        .wheel-part {
-          position: absolute;
-          width: 64px;
-          height: 64px;
-          top: 0;
-          left: 0;
-          // width: 1000px;
-          // height: 1000px;
-          // border-radius: 50%;
-          // background: transparent;
-          // background-image: none;
-          // background-image: none;
-          // background-image: linear-gradient(to right, transparent 50%, ${color} 0);
-          // z-index: ${index};
-        }
-        .wheel-part::before {
-          // box-sizing: border-box;
-          // content: '';
-          // display: block;
-          // margin-left: 50%;
-          // height: 100%;
-          // border-radius: 0 100% 100% 0 / 50%;
-          // background-color: transparent;
-          // transform-origin: left;
-          // transform: rotate(${pieAngle}deg);
-        }
-        .wheel-part-content {
-          color: ${color};
-          font-size: 24px;
-          width: 64px;
-          height: 64px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          // position: absolute;
-          // top: 0;
-          // left: 0;
+        text {
+          font-family: Helvetica, Arial, sans-serif;
+          font-weight: bolder;
+          font-size: 12px;
         }
       `}</style>
     </>

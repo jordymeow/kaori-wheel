@@ -1,40 +1,89 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import Pie from './Pie';
 
 const AromaWheel = (props) => {
-  const { aromas } = props;
+  const { aromas, aromaGroups } = props;
 
-  const ref = useRef();
-  const lengthListOfChildren = aromas.map(v => v.children.length);
-  const totalLengthOfChildren = aromas.map(v => v.children.length).reduce((a, b) => a + b, 0);
+  const parentsData = aromas.map(v => {
+    return {
+      ...v,
+      value: v.children.length
+    };
+  });
 
-  const getPieIndex = (index) => {
-    if (index === 0) return index;
+  const chirdrenData = aromas.flatMap(v => v.children);
+  const groupData = aromaGroups.map(v => {
+    return {
+      ...v,
+      value: parentsData.filter(d => v.children.includes(d.name))
+              .flatMap(d => d.children)
+              .length
+    };
+  })
 
-    return lengthListOfChildren.filter((_, j) => j < index)?.reduce((a, b) => a + b, 0);
-  }
+  const diameter = 800;
 
   return (
     <>
-      <div ref={ref} className="wheel">
-        {aromas.map((aroma, i) => {
-          return (
-            <Pie
-              key={aroma.name}
-              index={getPieIndex(i)}
-              total={totalLengthOfChildren}
-              contents={aroma}
-              center={500}
-              radius={420}
-            />
-          );
-        })}
+      <div className="wheel">
+        <svg width={diameter} height={diameter} viewBox={`0 0 ${diameter} ${diameter}`} xmlns="http://www.w3.org/2000/svg" version="1.1">
+          <Pie
+            data={parentsData}
+            radius={400}
+            hole={375}
+            labels={true}
+            strokeWidth={1}
+            stroke={'#fff'}
+          />
+          <Pie
+            data={chirdrenData}
+            diameter={diameter}
+            radius={375}
+            hole={240}
+            labels={true}
+          />
+          <Pie
+            data={parentsData}
+            diameter={diameter}
+            radius={240}
+            hole={130}
+            labels={true}
+            strokeWidth={1}
+            stroke={'#fff'}
+          />
+          <Pie
+            data={groupData}
+            diameter={diameter}
+            radius={130}
+            hole={80}
+            labels={true}
+            strokeWidth={1}
+            stroke={'#fff'}
+          />
+          <Pie
+            data={[{ value: chirdrenData.length, name: 'Center', color: '#fff' }]}
+            diameter={diameter}
+            radius={80}
+            hole={0}
+            labels={true}
+            strokeWidth={1}
+            stroke={'#fff'}
+          />
+        </svg>
       </div>
       <style jsx>{`
-        .wheel {
-          position: relative;
-          width: 1000px;
-          height: 1000px;
+        svg {
+          display: inline-block;
+          vertical-align: middle;
+          transform-origin: 50% 50%;
+          transform: rotate(-90deg);
+          animation: scale .6s;
+          margin: 10px;
+        }
+        svg text {
+          font-family: Helvetica, Arial, sans-serif;
+          font-weight: bolder;
+          font-size: 12px;
         }
       `}</style>
     </>
