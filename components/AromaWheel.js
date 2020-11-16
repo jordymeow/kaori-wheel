@@ -1,8 +1,19 @@
+import { useSpring, animated } from 'react-spring'
+import { useDrag } from 'react-use-gesture'
 import Pie from './Pie';
 import { LabelTypes, LabelAligns } from './Label';
+import { useState } from 'react';
 
 const AromaWheel = (props) => {
   const { aromas, aromaGroups } = props;
+  const [{ x }, set] = useSpring(() => ({ x: 0 }))
+
+  const bind = useDrag(
+    ({ down, movement: [mx] }) => {
+      set({ x: down ? mx / 300 : 0 });
+    },
+    { axis: 'x' }
+  );
 
   const parentsData = aromas.map(v => {
     return {
@@ -27,7 +38,12 @@ const AromaWheel = (props) => {
 
   return (
     <>
-      <div className="wheel">
+      <animated.div className="wheel"
+        {...bind()}
+        style={{
+          transform: x.interpolate((x) => `matrix3d(${Math.cos(-x)}, ${Math.sin(x)}, 0, 0, ${Math.sin(-x)}, ${Math.cos(-x)}, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1)`),
+        }}
+      >
         <svg width={diameter} height={diameter} viewBox={`0 0 ${diameter} ${diameter}`} xmlns="http://www.w3.org/2000/svg" version="1.1">
           <Pie
             data={parentsData}
@@ -78,7 +94,7 @@ const AromaWheel = (props) => {
             stroke={'#fff'}
           />
         </svg>
-      </div>
+      </animated.div>
       <style jsx>{`
         svg {
           display: inline-block;
