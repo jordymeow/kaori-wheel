@@ -1,19 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
+import { Label } from './Label';
 
 const Slice = (props) => {
-  const { angle, startAngle, radius, hole, showLabel, label, labelType = 'along',
-    labelColor = '#fff', trueHole, fill, stroke, strokeWidth, percent, percentValue,
-    value, id, diameter } = props;
+  const { angle, startAngle, radius, hole, fill, stroke, strokeWidth, diameter, showLabel } = props;
 
-  const text = label ? label : (percent ? percentValue + '%' : value);
   const [path, setPath] = useState('');
-  const [textPath, setTextPath] = useState('');
-  const [x, setX] = useState('');
-  const [y, setY] = useState('');
-  const labelTypes = {
-    along: 'along',
-    horizontal: 'horizontal'
-  };
 
   useEffect(() => {
     animate();
@@ -34,29 +25,22 @@ const Slice = (props) => {
 	};
 
   const draw = (s) => {
-		// if (!this.isMounted()) {
-		// 	return;
-		// }
-
     const path = [];
 		const step = angle / (37.5 / 2);
 
 		if (s + step > angle) {
 			s = angle;
-		}
+    }
 
     // Get angle points
     const diff = (diameter - (radius * 2)) / 2;
-		const a = getAnglePoint(startAngle, startAngle + s, radius, radius + diff, radius + diff);
-		const b = getAnglePoint(startAngle, startAngle + s, radius - hole, radius + diff, radius + diff);
+    const x = radius + diff;
+    const y = radius + diff;
+		const a = getAnglePoint(startAngle, startAngle + s, radius, x, y);
+		const b = getAnglePoint(startAngle, startAngle + s, radius - hole, x, y);
 
 		path.push(`M${a.x1},${a.y1}`);
     path.push(`A${radius},${radius} 0 ${s > 180 ? 1 : 0},1 ${a.x2},${a.y2}`);
-
-    // For text path along the circle.
-    if (showLabel && labelType === labelTypes.along)
-      setTextPath(path.join(' '));
-
 		path.push(`L${b.x2},${b.y2}`);
 		path.push(`A${radius - hole},${radius- hole} 0 ${s > 180 ? 1 : 0},0 ${b.x1},${b.y1}`);
 
@@ -67,22 +51,18 @@ const Slice = (props) => {
 
 		if (s < angle) {
 			setTimeout(() => { draw(s + step) } , 16);
-		} else if (showLabel) {
-			// const c = getAnglePoint(startAngle, startAngle + (angle / 2), (radius / 2 + trueHole / 2), radius, radius);
-      // setX(c.x2);
-      // setY(c.y2);
-      const dx = (hole - 16) / 2;
-      setX(dx);
 		}
   };
 
-  const getAnglePoint = (startAngle, endAngle, radius, x, y) => {
-    let x1, y1, x2, y2;
+  const getCoordinate = (angle, radius, x, y) => {
+    const x1 = x + radius * Math.cos(Math.PI * angle / 180);
+    const y1 = y + radius * Math.sin(Math.PI * angle / 180);
+    return { x1, y1 }
+  }
 
-    x1 = x + radius * Math.cos(Math.PI * startAngle / 180);
-    y1 = y + radius * Math.sin(Math.PI * startAngle / 180);
-    x2 = x + radius * Math.cos(Math.PI * endAngle / 180);
-    y2 = y + radius * Math.sin(Math.PI * endAngle / 180);
+  const getAnglePoint = (startAngle, endAngle, radius, x, y) => {
+    const { x1, y1 } = getCoordinate(startAngle, radius, x, y);
+    const { x1: x2, y1: y2} = getCoordinate(endAngle, radius, x, y);
 
     return { x1, y1, x2, y2 };
   };
@@ -95,20 +75,7 @@ const Slice = (props) => {
         stroke={stroke}
         strokeWidth={strokeWidth ? strokeWidth : 3}
           />
-      {showLabel ?
-        <>
-          <defs>
-            <path id={id} d={textPath} />
-          </defs>
-          <text fill={labelColor} textAnchor="middle">
-            <textPath xlinkHref={`#${id}`} startOffset="50%">
-              <tspan dy={18}>
-                {text}
-              </tspan>
-            </textPath>
-          </text>
-        </>
-      : null}
+      {showLabel && <Label {...props} />}
     </g>
   );
 }

@@ -1,5 +1,5 @@
-import { useEffect, useRef } from 'react';
 import Slice from './Slice';
+import { LabelTypes } from './Label';
 
 const Pie = (props) => {
   const { labels, hole, radius, data, stroke, strokeWidth, diameter } = props;
@@ -8,7 +8,7 @@ const Pie = (props) => {
 
   return (
     <>
-      {data.map((slice, sliceIndex) => {
+      {data.map((slice, _) => {
         const value = slice.value || 1;
         const nextAngle = startAngle;
         const angle = (value / sum) * 360;
@@ -27,10 +27,12 @@ const Pie = (props) => {
           diameter={diameter || (radius * 2)}
           radius={radius}
           hole={radius - hole}
-          trueHole={hole}
           showLabel={labels}
           label={slice.name}
-          labelColor={slice.labelColor || '#fff'}
+          labelColor={slice.labelColor}
+          labelType={slice.labelType || LabelTypes.horizontal}
+          labelAlign={slice.labelAlign}
+          labelSize={slice.labelSize}
           fill={slice.color}
           stroke={stroke}
           strokeWidth={strokeWidth}

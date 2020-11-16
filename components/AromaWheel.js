@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from "react";
 import Pie from './Pie';
+import { LabelTypes, LabelAligns } from './Label';
 
 const AromaWheel = (props) => {
   const { aromas, aromaGroups } = props;
@@ -7,7 +7,8 @@ const AromaWheel = (props) => {
   const parentsData = aromas.map(v => {
     return {
       ...v,
-      value: v.children.length
+      value: v.children.length,
+      labelColor: '#fff'
     };
   });
 
@@ -15,6 +16,7 @@ const AromaWheel = (props) => {
   const groupData = aromaGroups.map(v => {
     return {
       ...v,
+      labelAlign: LabelAligns.middle,
       value: parentsData.filter(d => v.children.includes(d.name))
               .flatMap(d => d.children)
               .length
@@ -43,7 +45,13 @@ const AromaWheel = (props) => {
             labels={true}
           />
           <Pie
-            data={parentsData}
+            data={parentsData.map(v => {
+              return {
+                ...v,
+                labelType: LabelTypes.horizontal,
+                labelAlign: LabelAligns.middle
+              }
+            })}
             diameter={diameter}
             radius={240}
             hole={130}
@@ -55,7 +63,7 @@ const AromaWheel = (props) => {
             data={groupData}
             diameter={diameter}
             radius={130}
-            hole={80}
+            hole={75}
             labels={true}
             strokeWidth={1}
             stroke={'#fff'}
@@ -63,7 +71,7 @@ const AromaWheel = (props) => {
           <Pie
             data={[{ value: chirdrenData.length, name: 'Center', color: '#fff' }]}
             diameter={diameter}
-            radius={80}
+            radius={75}
             hole={0}
             labels={true}
             strokeWidth={1}
