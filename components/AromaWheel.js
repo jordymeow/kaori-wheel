@@ -2,15 +2,19 @@ import { useSpring, animated } from 'react-spring'
 import { useDrag } from 'react-use-gesture'
 import Pie from './Pie';
 import { LabelTypes, LabelAligns } from './Label';
-import { useState } from 'react';
 
 const AromaWheel = (props) => {
   const { aromas, aromaGroups } = props;
-  const [{ x }, set] = useSpring(() => ({ x: 0 }))
+  const diameter = 800;
+  const [{ x, previousX }, set] = useSpring(() => ({ x: 0, previousX: 0, config: { friction: 70, tension: 250 } }))
 
   const bind = useDrag(
     ({ down, movement: [mx] }) => {
-      set({ x: down ? mx / 300 : 0 });
+      const calculatedX = mx / 200;
+      set({
+        previousX: down ? previousX.value : previousX.value + calculatedX,
+        x: previousX.value + calculatedX
+      });
     },
     { axis: 'x' }
   );
@@ -33,8 +37,6 @@ const AromaWheel = (props) => {
               .length
     };
   })
-
-  const diameter = 800;
 
   return (
     <>
