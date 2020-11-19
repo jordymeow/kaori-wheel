@@ -1,6 +1,7 @@
 import Head from 'next/head'
 import styles from '../styles/Home.module.css'
 import AromaWheel from '../components/AromaWheel';
+import { LabelTypes } from '../components/Label';
 
 export default function Home() {
   return (
@@ -17,7 +18,7 @@ export default function Home() {
               name: 'Primary Aromas',
               color: '#CED9EA',
               labelColor: '#646A76',
-              labelType: 'along',
+              labelType: LabelTypes.along,
               children: [
                 'Flower',
                 'Citrus',
@@ -68,7 +69,7 @@ export default function Home() {
             {
               name: 'Flower',
               color: '#6870BA',
-              labelType: 'along',
+              labelType: LabelTypes.along,
               children: [
                 {
                   name: 'Iris',
@@ -146,7 +147,7 @@ export default function Home() {
             }, {
               name: 'Citrus',
               color: '#6CC425',
-              labelType: 'along',
+              labelType: LabelTypes.along,
               children: [
                 {
                   name: 'Lime',
@@ -182,7 +183,7 @@ export default function Home() {
             }, {
               name: 'Tree Fruit',
               color: '#FAA046',
-              labelType: 'along',
+              labelType: LabelTypes.along,
               children: [
                 {
                   name: 'Quince',
@@ -230,7 +231,7 @@ export default function Home() {
             }, {
               name: 'Tropical Fruit',
               color: '#FF4C0C',
-              labelType: 'along',
+              labelType: LabelTypes.along,
               children: [
                 {
                   name: 'Pineapple',
@@ -272,7 +273,7 @@ export default function Home() {
             }, {
               name: 'Red Fruit',
               color: '#D2001C',
-              labelType: 'along',
+              labelType: LabelTypes.along,
               children: [
                 {
                   name: 'Cranberry',
@@ -320,7 +321,7 @@ export default function Home() {
             }, {
               name: 'Black Fruit',
               color: '#A30035',
-              labelType: 'along',
+              labelType: LabelTypes.along,
               children: [
                 {
                   name: 'Boysenberry',
@@ -368,7 +369,7 @@ export default function Home() {
             }, {
               name: 'Dried Fruit',
               color: '#D15992',
-              labelType: 'along',
+              labelType: LabelTypes.along,
               children: [
                 {
                   name: 'Roisin',
@@ -398,7 +399,7 @@ export default function Home() {
             }, {
               name: 'Noble Rot',
               color: '#0096DC',
-              labelType: 'along',
+              labelType: LabelTypes.along,
               children: [
                 {
                   name: 'Beeswax',
@@ -422,7 +423,7 @@ export default function Home() {
             }, {
               name: 'Spice',
               color: '#00BDAD',
-              labelType: 'along',
+              labelType: LabelTypes.along,
               children: [
                 {
                   name: 'White Pepper',
@@ -488,7 +489,7 @@ export default function Home() {
             }, {
               name: 'Vegetable',
               color: '#00973F',
-              labelType: 'along',
+              labelType: LabelTypes.along,
               children: [
                 {
                   name: 'Grass',
@@ -548,7 +549,7 @@ export default function Home() {
             }, {
               name: 'Earth',
               color: '#69AA2C',
-              labelType: 'along',
+              labelType: LabelTypes.along,
               children: [
                 {
                   name: 'Clay Pot',
@@ -596,7 +597,7 @@ export default function Home() {
             }, {
               name: 'Microbial',
               color: '#BCBF00',
-              labelType: 'along',
+              labelType: LabelTypes.along,
               children: [
                 {
                   name: 'Butter',
@@ -638,7 +639,7 @@ export default function Home() {
             }, {
               name: 'Oak Aging',
               color: '#C69100',
-              labelType: 'along',
+              labelType: LabelTypes.along,
               children: [
                 {
                   name: 'Vanilla',
@@ -680,7 +681,7 @@ export default function Home() {
             }, {
               name: 'General Aging',
               color: '#E98314',
-              labelType: 'along',
+              labelType: LabelTypes.along,
               children: [
                 {
                   name: 'Dried Fruit',
@@ -722,7 +723,7 @@ export default function Home() {
             }, {
               name: 'TCA',
               color: '#C88272',
-              labelType: 'along',
+              labelType: LabelTypes.along,
               children: [
                 {
                   name: 'Wet Dog',
@@ -740,7 +741,7 @@ export default function Home() {
             }, {
               name: 'Sulfide & Mercaptan',
               color: '#D6673F',
-              labelType: 'along',
+              labelType: LabelTypes.along,
               children: [
                 {
                   name: 'Cured Meat',
@@ -788,7 +789,7 @@ export default function Home() {
             }, {
               name: 'Brett',
               color: '#C24347',
-              labelType: 'along',
+              labelType: LabelTypes.along,
               children: [
                 {
                   name: 'Block Cardamon',
@@ -818,7 +819,7 @@ export default function Home() {
             }, {
               name: 'Cook',
               color: '#C71B74',
-              labelType: 'along',
+              labelType: LabelTypes.along,
               children: [
                 {
                   name: 'Stewed Fruit',
@@ -836,7 +837,7 @@ export default function Home() {
             }, {
               name: 'V.A.',
               color: '#AB43A2',
-              labelType: 'along',
+              labelType: LabelTypes.along,
               children: [
                 {
                   name: 'Balsamic',

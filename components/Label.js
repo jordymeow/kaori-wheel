@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { getCoordinate, getAnglePoint } from './../helpers/coordinate';
 
 const LabelTypes = {
   along: "along",
@@ -12,9 +13,9 @@ const LabelAligns = {
 };
 
 const Label = (props) => {
-  const { angle, startAngle, radius, hole, label,
-    labelType, labelAlign, labelColor = "#fff", labelSize = "smaller",
-    percent, percentValue, value, id, diameter } = props;
+  const { angle, startAngle, radius, hole, label, labelType, labelAlign,
+    labelColor = "#fff", labelSize = "smaller", percent, percentValue,
+    value, id, diameter } = props;
 
   const text = label ? label : percent ? percentValue + "%" : value;
   const [textPath, setTextPath] = useState("");
@@ -23,17 +24,21 @@ const Label = (props) => {
   const [textAnchor, setTextAnchor] = useState("");
   const [startOffset, setStartOffset] = useState("");
 
-  const getCoordinate = (angle, radius, x, y) => {
-    const x1 = x + radius * Math.cos((Math.PI * angle) / 180);
-    const y1 = y + radius * Math.sin((Math.PI * angle) / 180);
-    return { x1, y1 };
-  };
-
-  const getAnglePoint = (startAngle, endAngle, radius, x, y) => {
-    const { x1, y1 } = getCoordinate(startAngle, radius, x, y);
-    const { x1: x2, y1: y2 } = getCoordinate(endAngle, radius, x, y);
-
-    return { x1, y1, x2, y2 };
+  // Custom styles
+  const commonDx = 5;
+  const horizontalDy = 3;
+  const alongDy = hole / 2;
+  const customeStyles = {
+    [LabelTypes.along]: {
+      [LabelAligns.middle]: { dx: 0, dy: alongDy, textAnchor: 'middle', startOffset: '50%'},
+      [LabelAligns.start]: { dx: commonDx, dy: alongDy, textAnchor: 'start', startOffset: '0%'},
+      [LabelAligns.end]: { dx: -commonDx, dy: alongDy, textAnchor: 'end', startOffset: '100%'}
+    },
+    [LabelTypes.horizontal]: {
+      [LabelAligns.middle]: { dx: 0, dy: horizontalDy, textAnchor: 'middle', startOffset: '50%'},
+      [LabelAligns.start]: { dx: commonDx, dy: horizontalDy, textAnchor: 'start', startOffset: '0%'},
+      [LabelAligns.end]: { dx: -commonDx, dy: horizontalDy, textAnchor: 'end', startOffset: '100%'}
+    }
   };
 
   useEffect(() => {
@@ -41,6 +46,13 @@ const Label = (props) => {
     setDefaultStyle();
     setCustomeStyle();
   }, []);
+
+  const setStyle = ({dx, dy, textAnchor, startOffset}) => {
+    setDx(dx);
+    setDy(dy);
+    setTextAnchor(textAnchor);
+    setStartOffset(startOffset);
+  };
 
   const draw = () => {
     const diff = (diameter - radius * 2) / 2;
@@ -75,21 +87,12 @@ const Label = (props) => {
     if (labelAlign) return;
 
     if (labelType === LabelTypes.along) {
-      setDx(0);
-      setDy(18);
-      setTextAnchor("middle");
-      setStartOffset("50%");
+      setStyle({ dx: 0, dy: 18, textAnchor: 'middle', startOffset: '50%'});
     } else if (labelType === LabelTypes.horizontal) {
       if (startAngle > 180) {
-        setDx(5);
-        setDy(3);
-        setTextAnchor("start");
-        setStartOffset("0%");
+        setStyle({ dx: commonDx, dy: horizontalDy, textAnchor: 'start', startOffset: '0%'});
       } else {
-        setDx(-5);
-        setDy(3);
-        setTextAnchor("end");
-        setStartOffset("100%");
+        setStyle({ dx: -commonDx, dy: horizontalDy, textAnchor: 'end', startOffset: '100%'});
       }
     }
   }
@@ -97,41 +100,7 @@ const Label = (props) => {
   const setCustomeStyle = () => {
     if (!labelAlign) return;
 
-    if (labelType === LabelTypes.along) {
-      if (labelAlign === LabelAligns.middle) {
-        setDx(0);
-        setDy(hole/2);
-        setTextAnchor("middle");
-        setStartOffset("50%");
-      } else if (labelAlign === LabelAligns.start) {
-        setDx(5);
-        setDy(3);
-        setTextAnchor("start");
-        setStartOffset("0%");
-      } else if (labelAlign == LabelAligns.end) {
-        setDx(-5);
-        setDy(3);
-        setTextAnchor("end");
-        setStartOffset("100%");
-      }
-    } else if (labelType === LabelTypes.horizontal) {
-      if (labelAlign === LabelAligns.middle) {
-        setDx(0);
-        setDy(3);
-        setTextAnchor("middle");
-        setStartOffset("50%");
-      } else if (labelAlign === LabelAligns.start) {
-        setDx(5);
-        setDy(3);
-        setTextAnchor("start");
-        setStartOffset("0%");
-      } else if (labelAlign == LabelAligns.end) {
-        setDx(-5);
-        setDy(3);
-        setTextAnchor("end");
-        setStartOffset("100%");
-      }
-    }
+    setStyle(customeStyles[labelType][labelAlign]);
   }
 
   return (

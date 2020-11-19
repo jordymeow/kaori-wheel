@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Label } from './Label';
+import { getAnglePoint } from './../helpers/coordinate';
 
 const Slice = (props) => {
   const { angle, startAngle, radius, hole, fill, stroke, strokeWidth, diameter, showLabel } = props;
@@ -32,7 +33,6 @@ const Slice = (props) => {
 			s = angle;
     }
 
-    // Get angle points
     const diff = (diameter - (radius * 2)) / 2;
     const x = radius + diff;
     const y = radius + diff;
@@ -43,8 +43,6 @@ const Slice = (props) => {
     path.push(`A${radius},${radius} 0 ${s > 180 ? 1 : 0},1 ${a.x2},${a.y2}`);
 		path.push(`L${b.x2},${b.y2}`);
 		path.push(`A${radius - hole},${radius- hole} 0 ${s > 180 ? 1 : 0},0 ${b.x1},${b.y1}`);
-
-		// Close
     path.push('Z');
 
     setPath(path.join(' '));
@@ -52,19 +50,6 @@ const Slice = (props) => {
 		if (s < angle) {
 			setTimeout(() => { draw(s + step) } , 16);
 		}
-  };
-
-  const getCoordinate = (angle, radius, x, y) => {
-    const x1 = x + radius * Math.cos(Math.PI * angle / 180);
-    const y1 = y + radius * Math.sin(Math.PI * angle / 180);
-    return { x1, y1 }
-  }
-
-  const getAnglePoint = (startAngle, endAngle, radius, x, y) => {
-    const { x1, y1 } = getCoordinate(startAngle, radius, x, y);
-    const { x1: x2, y1: y2} = getCoordinate(endAngle, radius, x, y);
-
-    return { x1, y1, x2, y2 };
   };
 
 	return (

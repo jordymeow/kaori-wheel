@@ -19,6 +19,7 @@ const AromaWheel = (props) => {
     { axis: 'x' }
   );
 
+  // Pie Data
   const parentsData = aromas.map(v => {
     return {
       ...v,
@@ -26,8 +27,14 @@ const AromaWheel = (props) => {
       labelColor: '#fff'
     };
   });
-
   const chirdrenData = aromas.flatMap(v => v.children);
+  const innerParentsData = parentsData.map(v => {
+    return {
+      ...v,
+      labelType: LabelTypes.horizontal,
+      labelAlign: LabelAligns.middle
+    }
+  });
   const groupData = aromaGroups.map(v => {
     return {
       ...v,
@@ -40,7 +47,7 @@ const AromaWheel = (props) => {
 
   return (
     <>
-      <animated.div className="wheel"
+      <animated.div
         {...bind()}
         style={{
           transform: x.interpolate((x) => `matrix3d(${Math.cos(-x)}, ${Math.sin(x)}, 0, 0, ${Math.sin(-x)}, ${Math.cos(-x)}, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1)`),
@@ -63,13 +70,7 @@ const AromaWheel = (props) => {
             labels={true}
           />
           <Pie
-            data={parentsData.map(v => {
-              return {
-                ...v,
-                labelType: LabelTypes.horizontal,
-                labelAlign: LabelAligns.middle
-              }
-            })}
+            data={innerParentsData}
             diameter={diameter}
             radius={240}
             hole={130}
