@@ -13,6 +13,9 @@ export default function Home() {
 
       <main className={styles.main}>
         <AromaWheel
+          onSelect={() => {
+            console.log("select");
+          }}
           aromaGroups={[
             {
               name: 'Primary Aromas',

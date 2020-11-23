@@ -3,7 +3,8 @@ import { Label } from './Label';
 import { getAnglePoint } from './../helpers/coordinate';
 
 const Slice = (props) => {
-  const { angle, startAngle, radius, hole, fill, stroke, strokeWidth, diameter, showLabel } = props;
+  const { angle, startAngle, radius, hole, fill, stroke,
+    strokeWidth, diameter, showLabel, selected, onSelect, onUnselect } = props;
 
   const [path, setPath] = useState('');
 
@@ -52,8 +53,13 @@ const Slice = (props) => {
 		}
   };
 
+  const onClick = () => {
+    console.log("onClick");
+    selected ? onUnselect() : onSelect();
+  }
+
 	return (
-    <g overflow="hidden">
+    <g overflow="hidden" onClick={onClick}>
       <path
         d={path}
         fill={fill}

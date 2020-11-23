@@ -2,7 +2,7 @@ import Slice from './Slice';
 import { LabelTypes } from './Label';
 
 const Pie = (props) => {
-  const { labels, hole, radius, data, stroke, strokeWidth, diameter } = props;
+  const { labels, hole, radius, data, stroke, strokeWidth, diameter, onSelect, onUnselect } = props;
 	const sum = data.map(v => v.value || 1).reduce((a, b) => a + b, 0);
   let startAngle = 0;
 
@@ -37,6 +37,16 @@ const Pie = (props) => {
           stroke={stroke}
           strokeWidth={strokeWidth}
           selected={slice.selected ?? false}
+          onSelect={() => {
+            if (onSelect) {
+              onSelect();
+            }
+          }}
+          onUnselect={() => {
+            if (onUnselect) {
+              onUnselect();
+            }
+          }}
         />
       }) }
       <style jsx>{`

@@ -8,12 +8,16 @@ const DragPosition = {
   right: 'right',
   bottom: 'bottom',
   left: 'left',
-}
+};
+const DragState = {
+  down: 'down',
+  up: 'up'
+};
 
 const AromaWheel = (props) => {
-  const { aromas, aromaGroups } = props;
+  const { aromas, aromaGroups, onSelect, onUnselect } = props;
   const diameter = 800;
-  const [{ x, previousX }, set] = useSpring(() => ({ x: 0, previousX: 0, config: { friction: 70, tension: 250 } }))
+  const [{ x, previousX, currentPosition, previousDown }, set] = useSpring(() => ({ x: 0, previousX: 0, previousDown: DragState.up, currentPosition: DragPosition.top, config: { friction: 70, tension: 250 } }))
 
   const horizontalDragPositions = [
     DragPosition.right,
@@ -24,14 +28,23 @@ const AromaWheel = (props) => {
     DragPosition.right
   ];
   const bind = useDrag(
-    ({ args: [position], down, movement: [mx, my] }) => {
+    ({ down, movement: [mx, my], xy: [posX, posY] }) => {
+      let position = currentPosition.value;
+      if (previousDown.value === DragState.up && down) {
+        position = posY < (diameter / 5) ? DragPosition.top
+          : (posY > diameter * ( 4 / 5 ) ? DragPosition.bottom : false);
+        if (!position) {
+          position = posX < (diameter / 2) ? DragPosition.left : DragPosition.right;
+        }
+      }
       const targetMovement = horizontalDragPositions.includes(position) ? my : mx;
       const calculatedX = targetMovement / 200;
       const nextPreviousX = clockwiseDragPositions.includes(position) ? previousX.value + calculatedX : previousX.value - calculatedX;
       const x = clockwiseDragPositions.includes(position) ? previousX.value + calculatedX : previousX.value - calculatedX;
       set({
-        position,
         previousX: down ? previousX.value : nextPreviousX,
+        previousDown: down ? DragState.down : DragState.up,
+        currentPosition: position,
         x,
       });
     }
@@ -46,7 +59,13 @@ const AromaWheel = (props) => {
       showLabel: !(v.children.some(v => v.selected))
     };
   });
-  const chirdrenData = aromas.flatMap(v => v.children);
+  const chirdrenData = aromas.flatMap(v => v.children).map(v => {
+    return {
+      ...v,
+      onSelect,
+      onUnselect
+    }
+  });
   const innerParentsData = parentsData.map(v => {
     return {
       ...v,
@@ -68,11 +87,8 @@ const AromaWheel = (props) => {
   return (
     <>
       <div style={{ width: "100%", height: "100%", position: "relative" }}>
-        <div {...bind(DragPosition.top)} className="drag-area top"></div>
-        <div {...bind(DragPosition.right)} className="drag-area right" ></div>
-        <div {...bind(DragPosition.left)} className="drag-area left"></div>
-        <div {...bind(DragPosition.bottom)} className="drag-area bottom"></div>
         <animated.div
+          {...bind()}
           style={{
             transform: x.interpolate((x) => `matrix3d(${Math.cos(-x)}, ${Math.sin(x)}, 0, 0, ${Math.sin(-x)}, ${Math.cos(-x)}, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1)`),
           }}
@@ -136,28 +152,6 @@ const AromaWheel = (props) => {
           font-family: Helvetica, Arial, sans-serif;
           font-weight: bolder;
           font-size: 12px;
-        }
-        .drag-area {
-          position: absolute;
-          top: 0;
-          left: 0;
-          width: 50%;
-          height: 50%;
-          opacity: 0.5;
-          transform-origin: right bottom;
-          z-index: 100;
-        }
-        .drag-area.top {
-          transform: rotate(45deg);
-        }
-        .drag-area.right {
-          transform: rotate(135deg);
-        }
-        .drag-area.left {
-          transform: rotate(-45deg);
-        }
-        .drag-area.bottom {
-          transform: rotate(-135deg);
         }
       `}</style>
     </>
