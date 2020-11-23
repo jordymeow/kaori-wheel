@@ -27,7 +27,7 @@ const Pie = (props) => {
           diameter={diameter || (radius * 2)}
           radius={radius}
           hole={radius - hole}
-          showLabel={labels}
+          showLabel={slice.showLabel ?? labels}
           label={slice.name}
           labelColor={slice.labelColor}
           labelType={slice.labelType || LabelTypes.horizontal}
@@ -36,6 +36,7 @@ const Pie = (props) => {
           fill={slice.color}
           stroke={stroke}
           strokeWidth={strokeWidth}
+          selected={slice.selected ?? false}
         />
       }) }
       <style jsx>{`

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { getCoordinate, getAnglePoint } from './../helpers/coordinate';
+import Heart from "./Heart";
 
 const LabelTypes = {
   along: "along",
@@ -15,14 +16,15 @@ const LabelAligns = {
 const Label = (props) => {
   const { angle, startAngle, radius, hole, label, labelType, labelAlign,
     labelColor = "#fff", labelSize = "smaller", percent, percentValue,
-    value, id, diameter } = props;
+    value, id, diameter, selected } = props;
 
   const text = label ? label : percent ? percentValue + "%" : value;
   const [textPath, setTextPath] = useState("");
   const [dx, setDx] = useState(0);
   const [dy, setDy] = useState(0);
   const [textAnchor, setTextAnchor] = useState("");
-  const [startOffset, setStartOffset] = useState("");
+  const [startOffset, setStartOffset] = useState(0);
+  const [labelPoint, setLabelPoint] = useState({ x: 0, y: 0 });
 
   // Custom styles
   const commonDx = 5;
@@ -70,6 +72,7 @@ const Label = (props) => {
 
     if (labelType === LabelTypes.horizontal) {
       const endPoint = getCoordinate(startAngle + angle / 2, radius, x, y);
+      setLabelPoint({ x: endPoint.x1 + 5, y: endPoint.y1 + 5});
       const startPoint = getCoordinate(startAngle + angle / 2, radius - hole, x, y);
       const pathForText = [];
       if (startAngle > 180) {
@@ -115,6 +118,7 @@ const Label = (props) => {
           </tspan>
         </textPath>
       </text>
+      {selected && <Heart id={id} x={labelPoint.x} y={labelPoint.y} diameter="10" />}
     </>
   );
 };

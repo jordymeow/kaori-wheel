@@ -42,7 +42,8 @@ const AromaWheel = (props) => {
     return {
       ...v,
       value: v.children.length,
-      labelColor: '#fff'
+      labelColor: '#fff',
+      showLabel: !(v.children.some(v => v.selected))
     };
   });
   const chirdrenData = aromas.flatMap(v => v.children);
@@ -50,7 +51,8 @@ const AromaWheel = (props) => {
     return {
       ...v,
       labelType: LabelTypes.horizontal,
-      labelAlign: LabelAligns.middle
+      labelAlign: LabelAligns.middle,
+      showLabel: true
     }
   });
   const groupData = aromaGroups.map(v => {

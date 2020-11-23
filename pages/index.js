@@ -75,6 +75,7 @@ export default function Home() {
                   name: 'Iris',
                   color: '#BBBDE2',
                   labelColor: '#6870BA',
+                  selected: true,
                   enabled: true
                 },
                 {
