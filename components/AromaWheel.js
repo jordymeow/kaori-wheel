@@ -2,6 +2,7 @@ import { useSpring, animated } from 'react-spring'
 import { useDrag } from 'react-use-gesture'
 import Pie from './Pie';
 import { LabelTypes, LabelAligns } from './Label';
+import { useEffect, useMemo, useState, useRef } from 'react';
 
 const DragPosition = {
   top: 'top',
@@ -17,7 +18,11 @@ const DragState = {
 const AromaWheel = (props) => {
   const { aromas, aromaGroups, onSelect, onUnselect } = props;
   const diameter = 800;
-  const [{ x, previousX, currentPosition, previousDown }, set] = useSpring(() => ({ x: 0, previousX: 0, previousDown: DragState.up, currentPosition: DragPosition.top, config: { friction: 70, tension: 250 } }))
+  const [{ x, previousX, currentPosition, previousDown }, set] = useSpring(() => ({ x: 0, previousX: 0, previousDown: DragState.up, currentPosition: DragPosition.top, config: { friction: 70, tension: 250 } }));
+  const [ outsideParentsData, setOutsideParentsData ] = useState([]);
+  const [ childrenData, setChildrenData ] = useState([]);
+  const [ insideParentsData, setInsideParentsData ] = useState([]);
+  const [ groupData, setGroupData ] = useState([]);
 
   const horizontalDragPositions = [
     DragPosition.right,
@@ -27,6 +32,10 @@ const AromaWheel = (props) => {
     DragPosition.top,
     DragPosition.right
   ];
+
+  // --------------------
+  // Animation Settings
+  // --------------------
   const bind = useDrag(
     ({ down, movement: [mx, my], xy: [posX, posY] }) => {
       let position = currentPosition.value;
@@ -50,6 +59,9 @@ const AromaWheel = (props) => {
     }
   );
 
+  // --------------------
+  // Select/Unselect
+  // --------------------
   const retrieveGroupName = (aroma) => {
     return aromas.find(v => v.children.some(c => c.name === aroma)).name;
   }
@@ -66,33 +78,97 @@ const AromaWheel = (props) => {
     }
   }
 
+  // --------------------
   // Pie Data
-  const parentsData = aromas.map(v => {
-    return {
-      ...v,
-      value: v.children.length,
-      labelColor: '#fff',
-      showLabel: !(v.children.some(v => v.selected))
-    };
-  });
-  const chirdrenData = aromas.flatMap(v => v.children);
-  const innerParentsData = parentsData.map(v => {
-    return {
-      ...v,
-      labelType: LabelTypes.horizontal,
-      labelAlign: LabelAligns.middle,
-      showLabel: true
+  // --------------------
+  const isFirstRun = useRef(true);
+  useEffect(() => {
+    if (isFirstRun.current && aromas && aromaGroups) {
+      isFirstRun.current = false;
+      const newAromas = makeOutsideParentsData(aromas);
+      setOutsideParentsData(newAromas);
+      setChildrenData(makeChildrenData(newAromas));
+      setInsideParentsData(makeInsideParentsData(newAromas));
+      setGroupData(makeGroupData(newAromas, aromaGroups));
+      return;
     }
-  });
-  const groupData = aromaGroups.map(v => {
-    return {
-      ...v,
-      labelAlign: LabelAligns.middle,
-      value: parentsData.filter(d => v.children.includes(d.name))
-              .flatMap(d => d.children)
-              .length
-    };
-  });
+    if (aromas && aromaGroups) {
+      const newAromas = makeOutsideParentsData(aromas);
+      setOutsideParentsData(newAromas);
+      setChildrenData(makeChildrenData(newAromas));
+    }
+  }, [aromas, aromaGroups]);
+
+  const makeOutsideParentsData = (aromas) => {
+    return aromas.map(v => {
+      return {
+        ...v,
+        value: v.children.length,
+        labelColor: '#fff',
+        showLabel: !(v.children.some(v => v.selected))
+      };
+    });
+  };
+  const makeChildrenData = (aromas) => aromas.flatMap(v => v.children);
+  const makeInsideParentsData = (aromas) => {
+    return aromas.map(v => {
+      return {
+        ...v,
+        labelType: LabelTypes.horizontal,
+        labelAlign: LabelAligns.middle,
+        showLabel: true
+      }
+    })
+  };
+  const makeGroupData = (aromas, aromaGroups) => {
+    return aromaGroups.map(v => {
+      return {
+        ...v,
+        labelAlign: LabelAligns.middle,
+        value: aromas.filter(d => v.children.includes(d.name))
+                .flatMap(d => d.children)
+                .length
+      };
+    });
+  };
+
+  // --------------------
+  // Pie JSX
+  // --------------------
+  const outsideParentsWheel = useMemo(() => {
+    if (!outsideParentsData) return null;
+    return (
+      <Pie data={outsideParentsData} radius={400} hole={375} labels={true} strokeWidth={1} stroke={'#fff'} />
+    )
+  }, [outsideParentsData]);
+
+  const childrenWheel = useMemo(() => {
+    if (!childrenData) return null;
+    return (
+      <Pie data={childrenData} diameter={diameter} radius={375} hole={240} labels={true} onSelect={onAromaSelect} onUnselect={onAromaUnselect} />
+    )
+  }, [childrenData]);
+
+  const insideParentsWheel = useMemo(() => {
+    if (!insideParentsData) return null;
+    return (
+      <Pie data={insideParentsData} diameter={diameter} radius={240} hole={130} labels={true} strokeWidth={1} stroke={'#fff'} />
+    )
+  }, [insideParentsData]);
+
+  const groupWheel = useMemo(() => {
+    if (!groupData) return null;
+    return (
+      <Pie data={groupData} diameter={diameter} radius={130} hole={75} labels={true} strokeWidth={1} stroke={'#fff'} />
+    )
+  }, [groupData]);
+
+  const centerWheel = useMemo(() => {
+    if (!childrenData) return null;
+    return (
+      <Pie data={[{ value: childrenData.length, name: 'Center', color: '#fff' }]} diameter={diameter} radius={75} hole={0} labels={true} strokeWidth={1} stroke={'#fff'} />
+    )
+  }, [childrenData]);
 
   return (
     <>
@@ -104,50 +180,11 @@ const AromaWheel = (props) => {
           }}
         >
           <svg width={diameter} height={diameter} viewBox={`0 0 ${diameter} ${diameter}`} xmlns="http://www.w3.org/2000/svg" version="1.1">
-            <Pie
-              data={parentsData}
-              radius={400}
-              hole={375}
-              labels={true}
-              strokeWidth={1}
-              stroke={'#fff'}
-            />
-            <Pie
-              data={chirdrenData}
-              diameter={diameter}
-              radius={375}
-              hole={240}
-              labels={true}
-              onSelect={onAromaSelect}
-              onUnselect={onAromaUnselect}
-            />
-            <Pie
-              data={innerParentsData}
-              diameter={diameter}
-              radius={240}
-              hole={130}
-              labels={true}
-              strokeWidth={1}
-              stroke={'#fff'}
-            />
-            <Pie
-              data={groupData}
-              diameter={diameter}
-              radius={130}
-              hole={75}
-              labels={true}
-              strokeWidth={1}
-              stroke={'#fff'}
-            />
-            <Pie
-              data={[{ value: chirdrenData.length, name: 'Center', color: '#fff' }]}
-              diameter={diameter}
-              radius={75}
-              hole={0}
-              labels={true}
-              strokeWidth={1}
-              stroke={'#fff'}
-            />
+            {outsideParentsWheel}
+            {childrenWheel}
+            {insideParentsWheel}
+            {groupWheel}
+            {centerWheel}
           </svg>
         </animated.div>
       </div>
