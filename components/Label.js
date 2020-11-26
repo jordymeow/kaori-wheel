@@ -24,7 +24,7 @@ const Label = (props) => {
   const [dy, setDy] = useState(0);
   const [textAnchor, setTextAnchor] = useState("");
   const [startOffset, setStartOffset] = useState(0);
-  const [labelPoint, setLabelPoint] = useState({ x: 0, y: 0 });
+  const [selectedLabelPoint, setSelectedLabelPoint] = useState({ x: 0, y: 0 });
 
   // Custom styles
   const commonDx = 5;
@@ -72,7 +72,6 @@ const Label = (props) => {
 
     if (labelType === LabelTypes.horizontal) {
       const endPoint = getCoordinate(startAngle + angle / 2, radius, x, y);
-      setLabelPoint({ x: endPoint.x1 + 5, y: endPoint.y1 + 5});
       const startPoint = getCoordinate(startAngle + angle / 2, radius - hole, x, y);
       const pathForText = [];
       if (startAngle > 180) {
@@ -83,6 +82,11 @@ const Label = (props) => {
         pathForText.push(`L${endPoint.x1},${endPoint.y1}`);
       }
       setTextPath(pathForText.join(" "));
+    }
+
+    if (selected) {
+      const selectedLabelPoint = getCoordinate(startAngle + angle / 2, radius + 10, x, y);
+      setSelectedLabelPoint({ x: selectedLabelPoint.x1, y: selectedLabelPoint.y1 + 5});
     }
   };
 
@@ -118,7 +122,7 @@ const Label = (props) => {
           </tspan>
         </textPath>
       </text>
-      {selected && <Heart id={id} x={labelPoint.x} y={labelPoint.y} diameter="10" />}
+      {selected && <Heart id={id} x={selectedLabelPoint.x} y={selectedLabelPoint.y} diameter="10" />}
     </>
   );
 };

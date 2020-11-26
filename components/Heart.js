@@ -5,7 +5,7 @@ const Heart = (props) => {
     <>
       <defs>
         <g id={`${id}-heart`}>
-          <path d={`M${x} ${y + radius} v-${diameter} h${diameter}
+          <path d={`M${x} ${y} v-${diameter} h${diameter}
             a${radius},${radius} ${radius - 10} 0,1 0,${diameter}
             a${radius},${radius} ${radius - 10} 0,1 -${diameter},0
             z`} />
