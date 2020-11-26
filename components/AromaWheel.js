@@ -50,6 +50,22 @@ const AromaWheel = (props) => {
     }
   );
 
+  const retrieveGroupName = (aroma) => {
+    return aromas.find(v => v.children.some(c => c.name === aroma)).name;
+  }
+
+  const onAromaSelect = (name) => {
+    if (onSelect) {
+      onSelect({ aroma: name, group: retrieveGroupName(name) });
+    }
+  }
+
+  const onAromaUnselect = (name) => {
+    if (onUnselect) {
+      onUnselect({ aroma: name, group: retrieveGroupName(name) });
+    }
+  }
+
   // Pie Data
   const parentsData = aromas.map(v => {
     return {
@@ -59,13 +75,7 @@ const AromaWheel = (props) => {
       showLabel: !(v.children.some(v => v.selected))
     };
   });
-  const chirdrenData = aromas.flatMap(v => v.children).map(v => {
-    return {
-      ...v,
-      onSelect,
-      onUnselect
-    }
-  });
+  const chirdrenData = aromas.flatMap(v => v.children);
   const innerParentsData = parentsData.map(v => {
     return {
       ...v,
@@ -108,6 +118,8 @@ const AromaWheel = (props) => {
               radius={375}
               hole={240}
               labels={true}
+              onSelect={onAromaSelect}
+              onUnselect={onAromaUnselect}
             />
             <Pie
               data={innerParentsData}

@@ -54,7 +54,6 @@ const Slice = (props) => {
   };
 
   const onClick = () => {
-    console.log("onClick");
     selected ? onUnselect() : onSelect();
   }
 

@@ -6,6 +6,18 @@ const Pie = (props) => {
 	const sum = data.map(v => v.value || 1).reduce((a, b) => a + b, 0);
   let startAngle = 0;
 
+  const onBindSelect = (name) => {
+    if (onSelect) {
+      onSelect(name);
+    }
+  };
+
+  const onBindUnselect = (name) => {
+    if (onUnselect) {
+      onUnselect(name);
+    }
+  };
+
   return (
     <>
       {data.map((slice, _) => {
@@ -37,16 +49,8 @@ const Pie = (props) => {
           stroke={stroke}
           strokeWidth={strokeWidth}
           selected={slice.selected ?? false}
-          onSelect={() => {
-            if (onSelect) {
-              onSelect();
-            }
-          }}
-          onUnselect={() => {
-            if (onUnselect) {
-              onUnselect();
-            }
-          }}
+          onSelect={() => onBindSelect(slice.name)}
+          onUnselect={() => onBindUnselect(slice.name)}
         />
       }) }
       <style jsx>{`
