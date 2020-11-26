@@ -2,7 +2,8 @@ import Head from 'next/head'
 import styles from '../styles/Home.module.css'
 import AromaWheel from '../components/AromaWheel';
 import { LabelTypes } from '../components/Label';
-import { useState } from 'react';
+import Sidebar from '../components/Sidebar';
+import { useEffect, useState } from 'react';
 
 export default function Home() {
 
@@ -16,7 +17,6 @@ export default function Home() {
           name: 'Iris',
           color: '#BBBDE2',
           labelColor: '#6870BA',
-          selected: true,
           enabled: true
         },
         {
@@ -798,6 +798,7 @@ export default function Home() {
   ];
 
   const [aromas, setAromas] = useState(defaultAromas);
+  const [selectedAromas, setSelectedAromas] = useState([]);
 
   const updateAromas = (aroma, group, isSelected) => {
     const newAromas = aromas.map(v => {
@@ -813,6 +814,11 @@ export default function Home() {
     setAromas(newAromas);
   }
 
+  useEffect(() => {
+    const newSelectedAromas = aromas.flatMap(v => v.children).filter(v => v.selected).map(v => v.name);
+    setSelectedAromas(newSelectedAromas);
+  }, [aromas])
+
   return (
     <div className={styles.container}>
       <Head>
@@ -821,6 +827,7 @@ export default function Home() {
       </Head>
 
       <main className={styles.main}>
+        <Sidebar selectedAromas={selectedAromas} />
         <AromaWheel
           onSelect={({ aroma, group }) => {
             console.log("onSelect", aroma, group);
