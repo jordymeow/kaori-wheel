@@ -2,8 +2,7 @@ const { createServer } = require('http');
 const { parse } = require('url');
 const next = require('next');
 const port = parseInt(process.env.PORT, 10) || 2000;
-const CFG = require('./config');
-const app = next({ dev: CFG.app.isDev });
+const app = next({ dev: false });
 const handle = app.getRequestHandler();
 
 app.prepare().then(() => {
@@ -13,6 +12,6 @@ app.prepare().then(() => {
   }).listen(port, err => {
     if (err) 
       throw err;
-    console.log(`[ start ] Kaori Server (${CFG.app.isDev ? 'dev' : 'prd'}) started on ${CFG.app.url}`);
+    console.log(`[ start ] Kaori Server started`);
   })
 });
