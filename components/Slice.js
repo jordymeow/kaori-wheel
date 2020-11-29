@@ -23,7 +23,8 @@ const Slice = (props) => {
   }, [props]);
 
 	const animate = () => {
-		draw(0);
+    // Jordy: Now calling directly draw... to draw everything at once (to avoid the animation)
+		draw(360);
 	};
 
   const draw = (s) => {
@@ -48,9 +49,10 @@ const Slice = (props) => {
 
     setPath(path.join(' '));
 
-		if (s < angle) {
-			setTimeout(() => { draw(s + step) } , 16);
-		}
+    // No need since we draw it right away.
+		// if (s < angle) {
+		// 	setTimeout(() => { draw(s + step) } , 16);
+		// }
   };
 
   const onClick = () => {

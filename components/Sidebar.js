@@ -10,7 +10,7 @@ const Sidebar = (props) => {
   }, [opened]);
 
   const customMenuText = useMemo(() => {
-    return opened ? `<-` : `->`;
+    return opened ? `☰` : `☰`;
   }, [opened]);
 
   const aromasJsx = useMemo(() => {
@@ -29,11 +29,12 @@ const Sidebar = (props) => {
           </button>
         </div>
         <div className="menu">
-          <h1>Aroma Wheel</h1>
+          <h1>Kaori Wheel</h1>
+          <small>The Online Wine Aroma Wheel</small>
           <ul className="menu-list">
             <li>
               <ActiveLink activeClassName="active" href="/">
-                <a className="link">Aroma Wheel</a>
+                <a className="link">Kaori Wheel</a>
               </ActiveLink>
             </li>
             <li>
@@ -60,12 +61,19 @@ const Sidebar = (props) => {
           position: relative;
           text-align: left;
         }
+        .sidebar {
+          user-select: none;
+        }
         .sidebar.active {
           margin-left: -270px;
         }
         .sidebar h1 {
-          margin-bottom: 20px;
           font-weight: 700;
+          margin-bottom: 0px;
+        }
+        .sidebar small {
+          display: block;
+          margin-bottom: 20px;
         }
         .sidebar.active .custom-menu {
           margin-right: -50px;
@@ -84,6 +92,7 @@ const Sidebar = (props) => {
           border: 1px solid #393c7f;
           border-radius: 50%;
           color: #fff;
+          outline: none;
           cursor: pointer;
           font-weight: 400;
           font-size: 1rem;

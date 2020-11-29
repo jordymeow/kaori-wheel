@@ -202,6 +202,9 @@ const AromaWheel = (props) => {
           font-weight: bolder;
           font-size: 12px;
         }
+        * {
+          user-select: none
+        }
       `}</style>
     </>
   );
