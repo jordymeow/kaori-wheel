@@ -14,7 +14,7 @@ export default function About() {
         <Sidebar />
         <div className={styles.about}>
           <h1>About</h1>
-          <p>This is playground for Aroma wheel!</p>
+          <p>We are trying to make a nice Wine Aroma Wheel online, which will also be used by a mobile app. We plan to add fun features crafted for wine tasting experience. If we get a bit crazier, we might even implement more wheels and machine learning - maybe the AI of this app will be able to detect what wine you are drinking!</p>
         </div>
       </main>
     </div>
