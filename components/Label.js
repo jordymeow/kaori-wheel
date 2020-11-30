@@ -43,6 +43,12 @@ const Label = (props) => {
     }
   };
 
+  // Default styles
+  const defaultStyles = {
+    [LabelTypes.along] : { dx: 0, dy: 18, textAnchor: 'middle', startOffset: '50%'},
+    [LabelTypes.horizontal] : { dx: -commonDx, dy: horizontalDy, textAnchor: 'end', startOffset: '100%'}
+  };
+
   useEffect(() => {
     draw();
     setDefaultStyle();
@@ -74,13 +80,8 @@ const Label = (props) => {
       const endPoint = getCoordinate(startAngle + angle / 2, radius, x, y);
       const startPoint = getCoordinate(startAngle + angle / 2, radius - hole, x, y);
       const pathForText = [];
-      if (startAngle > 180) {
-        pathForText.push(`M${endPoint.x1},${endPoint.y1}`);
-        pathForText.push(`L${startPoint.x1},${startPoint.y1}`);
-      } else {
-        pathForText.push(`M${startPoint.x1},${startPoint.y1}`);
-        pathForText.push(`L${endPoint.x1},${endPoint.y1}`);
-      }
+      pathForText.push(`M${startPoint.x1},${startPoint.y1}`);
+      pathForText.push(`L${endPoint.x1},${endPoint.y1}`);
       setTextPath(pathForText.join(" "));
     }
 
@@ -93,15 +94,7 @@ const Label = (props) => {
   const setDefaultStyle = () => {
     if (labelAlign) return;
 
-    if (labelType === LabelTypes.along) {
-      setStyle({ dx: 0, dy: 18, textAnchor: 'middle', startOffset: '50%'});
-    } else if (labelType === LabelTypes.horizontal) {
-      if (startAngle > 180) {
-        setStyle({ dx: commonDx, dy: horizontalDy, textAnchor: 'start', startOffset: '0%'});
-      } else {
-        setStyle({ dx: -commonDx, dy: horizontalDy, textAnchor: 'end', startOffset: '100%'});
-      }
-    }
+    setStyle(defaultStyles[labelType]);
   }
 
   const setCustomeStyle = () => {
