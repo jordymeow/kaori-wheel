@@ -2,7 +2,7 @@ import { useSpring, animated } from 'react-spring'
 import { useDrag } from 'react-use-gesture'
 import Pie from './Pie';
 import { LabelTypes, LabelAligns } from './Label';
-import { useEffect, useMemo, useState, useRef } from 'react';
+import { useEffect, useMemo, useState, useRef, useLayoutEffect } from 'react';
 
 const DragPosition = {
   top: 'top',
@@ -16,6 +16,7 @@ const DragState = {
 };
 
 const AromaWheel = (props) => {
+  const ref = useRef();
   const { aromas, aromaGroups, onSelect, onUnselect } = props;
   const diameter = 800;
   const [{ x, previousX, currentPosition, previousDown }, set] = useSpring(() => ({ x: 0, previousX: 0, previousDown: DragState.up, currentPosition: DragPosition.top, config: { friction: 70, tension: 250 } }));
@@ -23,6 +24,7 @@ const AromaWheel = (props) => {
   const [ childrenData, setChildrenData ] = useState([]);
   const [ insideParentsData, setInsideParentsData ] = useState([]);
   const [ groupData, setGroupData ] = useState([]);
+  const [ width, setWidth ] = useState(diameter);
 
   const horizontalDragPositions = [
     DragPosition.right,
@@ -32,6 +34,12 @@ const AromaWheel = (props) => {
     DragPosition.top,
     DragPosition.right
   ];
+
+  useLayoutEffect(() => {
+    if (ref.current) {
+      setWidth(ref.current.offsetWidth);
+    }
+  }, []);
 
   // --------------------
   // Animation Settings
@@ -43,7 +51,7 @@ const AromaWheel = (props) => {
         position = posY < (diameter / 5) ? DragPosition.top
           : (posY > diameter * ( 4 / 5 ) ? DragPosition.bottom : false);
         if (!position) {
-          position = posX < (diameter / 2) ? DragPosition.left : DragPosition.right;
+          position = posX < (width / 2) ? DragPosition.left : DragPosition.right;
         }
       }
       const targetMovement = horizontalDragPositions.includes(position) ? my : mx;
@@ -172,7 +180,7 @@ const AromaWheel = (props) => {
 
   return (
     <>
-      <div style={{ width: "100%", height: "100%", position: "relative" }}>
+      <div ref={ref} style={{ width: "100%", height: "100%", position: "relative" }}>
         <animated.div
           {...bind()}
           style={{
