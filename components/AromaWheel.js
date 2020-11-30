@@ -17,14 +17,15 @@ const DragState = {
 
 const AromaWheel = (props) => {
   const ref = useRef();
-  const { aromas, aromaGroups, onSelect, onUnselect } = props;
+  const { aromas, aromaGroups, onSelect, onUnselect, width } = props;
   const diameter = 800;
+  const scale = width / diameter;
   const [{ x, previousX, currentPosition, previousDown }, set] = useSpring(() => ({ x: 0, previousX: 0, previousDown: DragState.up, currentPosition: DragPosition.top, config: { friction: 70, tension: 250 } }));
   const [ outsideParentsData, setOutsideParentsData ] = useState([]);
   const [ childrenData, setChildrenData ] = useState([]);
   const [ insideParentsData, setInsideParentsData ] = useState([]);
   const [ groupData, setGroupData ] = useState([]);
-  const [ width, setWidth ] = useState(diameter);
+  const [ containerWidth, setContainerWidth ] = useState();
 
   const horizontalDragPositions = [
     DragPosition.right,
@@ -37,7 +38,7 @@ const AromaWheel = (props) => {
 
   useLayoutEffect(() => {
     if (ref.current) {
-      setWidth(ref.current.offsetWidth);
+      setContainerWidth(ref.current.offsetWidth);
     }
   }, []);
 
@@ -51,11 +52,12 @@ const AromaWheel = (props) => {
         position = posY < (diameter / 5) ? DragPosition.top
           : (posY > diameter * ( 4 / 5 ) ? DragPosition.bottom : false);
         if (!position) {
-          position = posX < (width / 2) ? DragPosition.left : DragPosition.right;
+          position = posX < (containerWidth / 2) ? DragPosition.left : DragPosition.right;
         }
       }
       const targetMovement = horizontalDragPositions.includes(position) ? my : mx;
-      const calculatedX = targetMovement / 200;
+      const calculatedX = targetMovement / 200 * scale;
+      // const calculatedX = targetMovement / 200;
       const nextPreviousX = clockwiseDragPositions.includes(position) ? previousX.value + calculatedX : previousX.value - calculatedX;
       const x = clockwiseDragPositions.includes(position) ? previousX.value + calculatedX : previousX.value - calculatedX;
       set({
@@ -180,21 +182,23 @@ const AromaWheel = (props) => {
 
   return (
     <>
-      <div ref={ref} style={{ width: "100%", height: "100%", position: "relative" }}>
-        <animated.div
-          {...bind()}
-          style={{
-            transform: x.interpolate((x) => `matrix3d(${Math.cos(-x)}, ${Math.sin(x)}, 0, 0, ${Math.sin(-x)}, ${Math.cos(-x)}, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1)`),
-          }}
-        >
-          <svg width={diameter} height={diameter} viewBox={`0 0 ${diameter} ${diameter}`} xmlns="http://www.w3.org/2000/svg" version="1.1">
-            {outsideParentsWheel}
-            {childrenWheel}
-            {insideParentsWheel}
-            {groupWheel}
-            {centerWheel}
-          </svg>
-        </animated.div>
+      <div ref={ref} style={{ width: "100%", height: "100%", position: "relative", display: "flex", justifyContent: "center" }}>
+        {/* <div style={{ width: width}}> */}
+          <animated.div
+            {...bind()}
+            style={{
+              transform: x.interpolate((x) => `scale(${scale}) matrix3d(${Math.cos(-x)}, ${Math.sin(x)}, 0, 0, ${Math.sin(-x)}, ${Math.cos(-x)}, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1)`),
+            }}
+          >
+            <svg width={diameter} height={diameter} viewBox={`0 0 ${diameter} ${diameter}`} xmlns="http://www.w3.org/2000/svg" version="1.1">
+              {outsideParentsWheel}
+              {childrenWheel}
+              {insideParentsWheel}
+              {groupWheel}
+              {centerWheel}
+            </svg>
+          </animated.div>
+        {/* </div> */}
       </div>
       <style jsx>{`
         svg {

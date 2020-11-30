@@ -829,6 +829,7 @@ export default function Home() {
       <main className={styles.main}>
         <Sidebar selectedAromas={selectedAromas} />
         <AromaWheel
+          width={800}
           onSelect={({ aroma, group }) => {
             console.log("onSelect", aroma, group);
             updateAromas(aroma, group, true);
