@@ -9,7 +9,7 @@ const Slice = (props) => {
   const [path, setPath] = useState('');
 
   useEffect(() => {
-    animate();
+    draw();
   }, []);
 
   const isFirstRun = useRef(true);
@@ -18,55 +18,40 @@ const Slice = (props) => {
       isFirstRun.current = false;
       return;
     }
-    setPath('');
-    animate();
+    draw();
   }, [props]);
 
-	const animate = () => {
-    // Jordy: Now calling directly draw... to draw everything at once (to avoid the animation)
-		draw(360);
-	};
-
-  const draw = (s) => {
+  const draw = () => {
     const path = [];
-		const step = angle / (37.5 / 2);
-
-		if (s + step > angle) {
-			s = angle;
-    }
 
     const diff = (diameter - (radius * 2)) / 2;
     const x = radius + diff;
     const y = radius + diff;
-		const a = getAnglePoint(startAngle, startAngle + s, radius, x, y);
-		const b = getAnglePoint(startAngle, startAngle + s, radius - hole, x, y);
+    const endAngle = startAngle + angle;
+    const a = getAnglePoint(startAngle, endAngle, radius, x, y);
+    const b = getAnglePoint(startAngle, endAngle, radius - hole, x, y);
 
-		path.push(`M${a.x1},${a.y1}`);
-    path.push(`A${radius},${radius} 0 ${s > 180 ? 1 : 0},1 ${a.x2},${a.y2}`);
-		path.push(`L${b.x2},${b.y2}`);
-		path.push(`A${radius - hole},${radius- hole} 0 ${s > 180 ? 1 : 0},0 ${b.x1},${b.y1}`);
+    path.push(`M${a.x1},${a.y1}`);
+    path.push(`A${radius},${radius} 0 ${angle > 180 ? 1 : 0},1 ${a.x2},${a.y2}`);
+    path.push(`L${b.x2},${b.y2}`);
+    path.push(`A${radius - hole},${radius - hole} 0 ${angle > 180 ? 1 : 0},0 ${b.x1},${b.y1}`);
     path.push('Z');
 
     setPath(path.join(' '));
-
-    // No need since we draw it right away.
-		// if (s < angle) {
-		// 	setTimeout(() => { draw(s + step) } , 16);
-		// }
   };
 
   const onClick = () => {
     selected ? onUnselect() : onSelect();
   }
 
-	return (
+  return (
     <g overflow="hidden" onClick={onClick}>
       <path
         d={path}
         fill={fill}
         stroke={stroke}
         strokeWidth={strokeWidth ? strokeWidth : 3}
-          />
+      />
       {showLabel && <Label {...props} />}
     </g>
   );
