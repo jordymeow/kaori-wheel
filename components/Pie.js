@@ -24,7 +24,6 @@ const Pie = (props) => {
         const value = slice.value || 1;
         const nextAngle = startAngle;
         const angle = (value / sum) * 360;
-        const percent = (value / sum) * 100;
         const key = Math.random().toString(36).substring(5);
         startAngle += angle;
 
@@ -32,8 +31,6 @@ const Pie = (props) => {
           key={key}
           id={key}
           value={value}
-          percent={percent}
-          percentValue={percent.toFixed(1)}
           startAngle={nextAngle}
           angle={angle}
           diameter={diameter || (radius * 2)}

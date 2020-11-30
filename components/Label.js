@@ -1,6 +1,4 @@
-import { useEffect, useState } from "react";
 import { getCoordinate, getAnglePoint } from './../helpers/coordinate';
-import Heart from "./Heart";
 
 const LabelTypes = {
   along: "along",
@@ -15,16 +13,9 @@ const LabelAligns = {
 
 const Label = (props) => {
   const { angle, startAngle, radius, hole, label, labelType, labelAlign,
-    labelColor = "#fff", labelSize = "smaller", percent, percentValue,
-    value, id, diameter, selected } = props;
+    labelColor = "#fff", labelSize = "smaller", value, id, diameter } = props;
 
-  const text = label ? label : percent ? percentValue + "%" : value;
-  const [textPath, setTextPath] = useState("");
-  const [dx, setDx] = useState(0);
-  const [dy, setDy] = useState(0);
-  const [textAnchor, setTextAnchor] = useState("");
-  const [startOffset, setStartOffset] = useState(0);
-  const [selectedLabelPoint, setSelectedLabelPoint] = useState({ x: 0, y: 0 });
+  const text = label ? label : value;
 
   // Custom styles
   const commonDx = 5;
@@ -49,20 +40,7 @@ const Label = (props) => {
     [LabelTypes.horizontal] : { dx: -commonDx, dy: horizontalDy, textAnchor: 'end', startOffset: '100%'}
   };
 
-  useEffect(() => {
-    draw();
-    setDefaultStyle();
-    setCustomeStyle();
-  }, []);
-
-  const setStyle = ({dx, dy, textAnchor, startOffset}) => {
-    setDx(dx);
-    setDy(dy);
-    setTextAnchor(textAnchor);
-    setStartOffset(startOffset);
-  };
-
-  const draw = () => {
+  const draw = ({labelType, startAngle, angle, diameter, radius}) => {
     const diff = (diameter - radius * 2) / 2;
     const x = radius + diff;
     const y = radius + diff;
@@ -72,8 +50,7 @@ const Label = (props) => {
       const pathForText = [];
       pathForText.push(`M${a.x1},${a.y1}`);
       pathForText.push(`A${radius},${radius} 0 ${angle > 180 ? 1 : 0},1 ${a.x2},${a.y2}`);
-      setTextPath(pathForText.join(" "));
-      return;
+      return pathForText.join(" ");
     }
 
     if (labelType === LabelTypes.horizontal) {
@@ -82,31 +59,16 @@ const Label = (props) => {
       const pathForText = [];
       pathForText.push(`M${startPoint.x1},${startPoint.y1}`);
       pathForText.push(`L${endPoint.x1},${endPoint.y1}`);
-      setTextPath(pathForText.join(" "));
-    }
-
-    if (selected) {
-      const selectedLabelPoint = getCoordinate(startAngle + angle / 2, radius + 10, x, y);
-      setSelectedLabelPoint({ x: selectedLabelPoint.x1, y: selectedLabelPoint.y1 + 5});
+      return pathForText.join(" ");
     }
   };
 
-  const setDefaultStyle = () => {
-    if (labelAlign) return;
-
-    setStyle(defaultStyles[labelType]);
-  }
-
-  const setCustomeStyle = () => {
-    if (!labelAlign) return;
-
-    setStyle(customeStyles[labelType][labelAlign]);
-  }
+  const { dx, dy, textAnchor, startOffset } = labelAlign ? customeStyles[labelType][labelAlign]: defaultStyles[labelType];
 
   return (
     <>
       <defs>
-        <path id={id} d={textPath} />
+        <path id={id} d={draw({labelType, startAngle, angle, diameter, radius})} />
       </defs>
       <text fill={labelColor} textAnchor={textAnchor} fontSize={labelSize}>
         <textPath xlinkHref={`#${id}`} startOffset={startOffset}>
@@ -115,7 +77,6 @@ const Label = (props) => {
           </tspan>
         </textPath>
       </text>
-      {selected && <Heart id={id} x={selectedLabelPoint.x} y={selectedLabelPoint.y} diameter="10" />}
     </>
   );
 };
