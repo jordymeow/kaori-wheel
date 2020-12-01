@@ -1,2 +1,5 @@
+== 0.0.2 (2020/12/01) ==
+* The wheel works better.
+
 == 0.0.1 (2020/11/29) ==
 * The wheel works, we can pick aromas.
