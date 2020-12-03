@@ -828,70 +828,72 @@ export default function Home() {
 
       <main className={styles.main}>
         <Sidebar selectedAromas={selectedAromas} />
-        <AromaWheel
-          width={800}
-          onSelect={({ aroma, group }) => {
-            console.log("onSelect", aroma, group);
-            updateAromas(aroma, group, true);
-          }}
-          onUnselect={({ aroma, group }) => {
-            console.log("onUnselect", aroma, group);
-            updateAromas(aroma, group, false);
-          }}
-          aromaGroups={[
-            {
-              name: 'Primary Aromas',
-              color: '#CED9EA',
-              labelColor: '#646A76',
-              labelType: LabelTypes.along,
-              children: [
-                'Flower',
-                'Citrus',
-                'Tree Fruit',
-                'Tropical Fruit',
-                'Red Fruit',
-                'Black Fruit',
-                'Dried Fruit',
-                'Noble Rot',
-                'Spice',
-                'Vegetable',
-                'Earth',
-              ]
-            },
-            {
-              name: 'Secondary',
-              color: '#AFC1D8',
-              labelColor: '#646A76',
-              labelSize: 'x-small',
-              children: [
-                'Microbial',
-              ]
-            },
-            {
-              name: 'Tertiary',
-              color: '#CED9EA',
-              labelColor: '#646A76',
-              labelSize: 'x-small',
-              children: [
-                'Oak Aging',
-                'General Aging',
-              ],
-            },
-            {
-              name: 'Faults',
-              color: '#AFC1D8',
-              labelColor: '#646A76',
-              children: [
-                'TCA',
-                'Sulfide & Mercaptan',
-                'Brett',
-                'Cook',
-                'V.A.',
-              ]
-            }
-          ]}
-          aromas={aromas}
-        />
+        <div className={styles.container}>
+          <AromaWheel
+            width={800}
+            onSelect={({ aroma, group }) => {
+              console.log("onSelect", aroma, group);
+              updateAromas(aroma, group, true);
+            }}
+            onUnselect={({ aroma, group }) => {
+              console.log("onUnselect", aroma, group);
+              updateAromas(aroma, group, false);
+            }}
+            aromaGroups={[
+              {
+                name: 'Primary Aromas',
+                color: '#CED9EA',
+                labelColor: '#646A76',
+                labelType: LabelTypes.along,
+                children: [
+                  'Flower',
+                  'Citrus',
+                  'Tree Fruit',
+                  'Tropical Fruit',
+                  'Red Fruit',
+                  'Black Fruit',
+                  'Dried Fruit',
+                  'Noble Rot',
+                  'Spice',
+                  'Vegetable',
+                  'Earth',
+                ]
+              },
+              {
+                name: 'Secondary',
+                color: '#AFC1D8',
+                labelColor: '#646A76',
+                labelSize: 'x-small',
+                children: [
+                  'Microbial',
+                ]
+              },
+              {
+                name: 'Tertiary',
+                color: '#CED9EA',
+                labelColor: '#646A76',
+                labelSize: 'x-small',
+                children: [
+                  'Oak Aging',
+                  'General Aging',
+                ],
+              },
+              {
+                name: 'Faults',
+                color: '#AFC1D8',
+                labelColor: '#646A76',
+                children: [
+                  'TCA',
+                  'Sulfide & Mercaptan',
+                  'Brett',
+                  'Cook',
+                  'V.A.',
+                ]
+              }
+            ]}
+            aromas={aromas}
+          />
+        </div>
       </main>
     </div>
   )

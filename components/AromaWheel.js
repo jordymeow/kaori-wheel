@@ -20,12 +20,12 @@ const AromaWheel = (props) => {
   const { aromas, aromaGroups, onSelect, onUnselect, width } = props;
   const diameter = 800;
   const scale = width / diameter;
+  const [ criteria, setCriteria ] = useState({ top: width / 5, bottom: width * (4 / 5), center: width / 2 });
   const [{ x, previousX, currentPosition, previousDown }, set] = useSpring(() => ({ x: 0, previousX: 0, previousDown: DragState.up, currentPosition: DragPosition.top, config: { friction: 70, tension: 250 } }));
   const [ outsideParentsData, setOutsideParentsData ] = useState([]);
   const [ childrenData, setChildrenData ] = useState([]);
   const [ insideParentsData, setInsideParentsData ] = useState([]);
   const [ groupData, setGroupData ] = useState([]);
-  const [ containerWidth, setContainerWidth ] = useState();
 
   const horizontalDragPositions = [
     DragPosition.right,
@@ -38,7 +38,8 @@ const AromaWheel = (props) => {
 
   useLayoutEffect(() => {
     if (ref.current) {
-      setContainerWidth(ref.current.offsetWidth);
+      const rect = ref.current.getBoundingClientRect();
+      setCriteria({ top: rect.y + criteria.top, bottom: rect.y + criteria.bottom, center: rect.x + (width / 2) });
     }
   }, []);
 
@@ -49,15 +50,14 @@ const AromaWheel = (props) => {
     ({ down, movement: [mx, my], xy: [posX, posY] }) => {
       let position = currentPosition.value;
       if (previousDown.value === DragState.up && down) {
-        position = posY < (diameter / 5) ? DragPosition.top
-          : (posY > diameter * ( 4 / 5 ) ? DragPosition.bottom : false);
+        position = posY < criteria.top ? DragPosition.top
+          : (posY > criteria.bottom ? DragPosition.bottom : false);
         if (!position) {
-          position = posX < (containerWidth / 2) ? DragPosition.left : DragPosition.right;
+          position = posX < criteria.center ? DragPosition.left : DragPosition.right;
         }
       }
       const targetMovement = horizontalDragPositions.includes(position) ? my : mx;
       const calculatedX = targetMovement / 200 * scale;
-      // const calculatedX = targetMovement / 200;
       const nextPreviousX = clockwiseDragPositions.includes(position) ? previousX.value + calculatedX : previousX.value - calculatedX;
       const x = clockwiseDragPositions.includes(position) ? previousX.value + calculatedX : previousX.value - calculatedX;
       set({
@@ -182,12 +182,12 @@ const AromaWheel = (props) => {
 
   return (
     <>
-      <div ref={ref} style={{ width: "100%", height: "100%", position: "relative", display: "flex", justifyContent: "center" }}>
-        {/* <div style={{ width: width}}> */}
+      <div ref={ref} style={{ width: width, height: width, overflow: "hidden" }}>
+        <div style={{ width: diameter, height: diameter, transform: `scale(${scale})`, transformOrigin: 'left top' }}>
           <animated.div
             {...bind()}
             style={{
-              transform: x.interpolate((x) => `scale(${scale}) matrix3d(${Math.cos(-x)}, ${Math.sin(x)}, 0, 0, ${Math.sin(-x)}, ${Math.cos(-x)}, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1)`),
+              transform: x.interpolate((x) => `matrix3d(${Math.cos(-x)}, ${Math.sin(x)}, 0, 0, ${Math.sin(-x)}, ${Math.cos(-x)}, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1)`),
             }}
           >
             <svg width={diameter} height={diameter} viewBox={`0 0 ${diameter} ${diameter}`} xmlns="http://www.w3.org/2000/svg" version="1.1">
@@ -198,7 +198,7 @@ const AromaWheel = (props) => {
               {centerWheel}
             </svg>
           </animated.div>
-        {/* </div> */}
+        </div>
       </div>
       <style jsx>{`
         svg {
@@ -207,7 +207,6 @@ const AromaWheel = (props) => {
           transform-origin: 50% 50%;
           transform: rotate(-90deg);
           animation: scale .6s;
-          margin: 10px;
         }
         svg text {
           font-family: Helvetica, Arial, sans-serif;
