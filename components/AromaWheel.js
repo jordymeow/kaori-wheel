@@ -21,7 +21,7 @@ const AromaWheel = (props) => {
   const diameter = 800;
   const scale = width / diameter;
   const [ criteria, setCriteria ] = useState({ top: width / 5, bottom: width * (4 / 5), center: width / 2 });
-  const [{ x, previousX, currentPosition, previousDown }, set] = useSpring(() => ({ x: 0, previousX: 0, previousDown: DragState.up, currentPosition: DragPosition.top, config: { friction: 70, tension: 250 } }));
+  const [{ x, previousX, currentPosition, previousDown }, set] = useSpring(() => ({ x: 0, previousX: 0, previousDown: DragState.up, currentPosition: DragPosition.top, config: { friction: 70, tension: 0 } }));
   const [ outsideParentsData, setOutsideParentsData ] = useState([]);
   const [ childrenData, setChildrenData ] = useState([]);
   const [ insideParentsData, setInsideParentsData ] = useState([]);
@@ -47,7 +47,7 @@ const AromaWheel = (props) => {
   // Animation Settings
   // --------------------
   const bind = useDrag(
-    ({ down, movement: [mx, my], xy: [posX, posY] }) => {
+    ({ down, movement: [mx, my], xy: [posX, posY], velocity }) => {
       let position = currentPosition.value;
       if (previousDown.value === DragState.up && down) {
         position = posY < criteria.top ? DragPosition.top
@@ -57,14 +57,17 @@ const AromaWheel = (props) => {
         }
       }
       const targetMovement = horizontalDragPositions.includes(position) ? my : mx;
-      const calculatedX = targetMovement / 200 * scale;
+      const movementRate = down || velocity < 1 ? 200 : 100;
+      const calculatedX = targetMovement / movementRate * scale;
       const nextPreviousX = clockwiseDragPositions.includes(position) ? previousX.value + calculatedX : previousX.value - calculatedX;
       const x = clockwiseDragPositions.includes(position) ? previousX.value + calculatedX : previousX.value - calculatedX;
+      const config = { friction: 70, tension: down || velocity < 1 ? 0 : 300 };
       set({
         previousX: down ? previousX.value : nextPreviousX,
         previousDown: down ? DragState.down : DragState.up,
         currentPosition: position,
         x,
+        config
       });
     }
   );
