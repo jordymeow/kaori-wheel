@@ -3,10 +3,13 @@ import styles from '../styles/Home.module.css'
 import AromaWheel from '../components/AromaWheel';
 import { LabelTypes } from '../components/Label';
 import Sidebar from '../components/Sidebar';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useLayoutEffect, useRef } from 'react';
 
 export default function Home() {
 
+  const ref = useRef();
+  const defaultWheelWidth = 600;
+  const sidebarWidth = 270;
   const defaultAromas = [
     {
       name: 'Flower',
@@ -799,6 +802,9 @@ export default function Home() {
 
   const [aromas, setAromas] = useState(defaultAromas);
   const [selectedAromas, setSelectedAromas] = useState([]);
+  const [wheelWidth, setWheelWidth] = useState(defaultWheelWidth);
+  const [criteria, setCriteria] = useState({ top: wheelWidth / 5, bottom: wheelWidth * (4 / 5), center: wheelWidth / 2 });
+  const [showSidebar, setShowSidebar] = useState(true);
 
   const updateAromas = (aroma, group, isSelected) => {
     const newAromas = aromas.map(v => {
@@ -819,6 +825,39 @@ export default function Home() {
     setSelectedAromas(newSelectedAromas);
   }, [aromas])
 
+  useEffect(() => {
+    if (!wheelWidth) return;
+
+    const baseX = showSidebar ? sidebarWidth : 0;
+    const containerWidth = showSidebar ? window.innerWidth - sidebarWidth : window.innerWidth;
+    const wheelX = baseX + ((containerWidth / 2) - (wheelWidth / 2));
+    const wheelY = (window.innerHeight / 2) - (wheelWidth / 2);
+    setCriteria({ top: wheelY + (wheelWidth / 5), bottom: wheelY + (wheelWidth * (4 / 5)), center: wheelX + (wheelWidth / 2) });
+  }, [wheelWidth, showSidebar])
+
+  useLayoutEffect(() => {
+    function updateSize() {
+      if (ref.current) {
+        const rect = ref.current.getBoundingClientRect();
+        const newWheelWidth = rect.width > defaultWheelWidth ? defaultWheelWidth : rect.width;
+        setShowSidebar(window.innerWidth !== rect.width);
+        setWheelWidth(newWheelWidth);
+      }
+    }
+    window.addEventListener('resize', updateSize);
+    updateSize();
+    return () => {
+      window.removeEventListener('resize', updateSize)
+    };
+  }, []);
+
+  const onOpened = () => {
+    setShowSidebar(window.innerWidth > sidebarWidth + wheelWidth);
+  }
+  const onClosed = () => {
+    setShowSidebar(false);
+  }
+
   return (
     <div className={styles.container}>
       <Head>
@@ -827,10 +866,11 @@ export default function Home() {
       </Head>
 
       <main className={styles.main}>
-        <Sidebar selectedAromas={selectedAromas} />
-        <div className={styles.container}>
+        <Sidebar mainWidth={wheelWidth} selectedAromas={selectedAromas} onOpened={onOpened} onClosed={onClosed} />
+        <div ref={ref} className={styles.container}>
           <AromaWheel
-            width={800}
+            criteria={criteria}
+            width={wheelWidth}
             onSelect={({ aroma, group }) => {
               console.log("onSelect", aroma, group);
               updateAromas(aroma, group, true);

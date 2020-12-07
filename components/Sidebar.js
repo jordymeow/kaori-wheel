@@ -3,7 +3,10 @@ import ActiveLink from './ActiveLink'
 
 const Sidebar = (props) => {
 
+  const { onOpened, onClosed } = props;
   const [ opened, setOpened ] = useState(true);
+  const width = 270;
+  const breakPoint = width + props.mainWidth;
 
   const sidebarMenuClassName = useMemo(() => {
     return opened ? "sidebar" : "sidebar active"
@@ -20,11 +23,17 @@ const Sidebar = (props) => {
     })
   }, [props.selectedAromas]);
 
+  const onButtonClicked = () => {
+    const isOpened = !opened;
+    setOpened(isOpened);
+    isOpened ? onOpened() : onClosed();
+  }
+
   return (
     <>
       <nav className={sidebarMenuClassName}>
         <div className="custom-menu">
-          <button type="button" className="btn" onClick={() => setOpened(!opened)}>
+          <button type="button" className="btn" onClick={onButtonClicked}>
             <span>{customMenuText}</span>
           </button>
         </div>
@@ -60,6 +69,14 @@ const Sidebar = (props) => {
           transition: all 0.3s;
           position: relative;
           text-align: left;
+        }
+        @media (max-width: ${breakPoint}px) {
+          .sidebar {
+            height: 100vh;
+            position: absolute;
+            left: 0;
+            z-index: 100;
+          }
         }
         .sidebar {
           user-select: none;

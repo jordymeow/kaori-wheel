@@ -22,7 +22,7 @@ const AromaWheel = (props) => {
   const { aromas, aromaGroups, onSelect, onUnselect, width } = props;
   const diameter = 800;
   const scale = width / diameter;
-  const [ criteria, setCriteria ] = useState({ top: width / 5, bottom: width * (4 / 5), center: width / 2 });
+  const [ criteria, setCriteria ] = useState(props.criteria ?? { top: width / 5, bottom: width * (4 / 5), center: width / 2 });
   const [{ x, previousX, currentPosition, previousDown }, set] = useSpring(() => ({ x: 0, previousX: 0, previousDown: DragState.up, currentPosition: DragPosition.top, config: { friction: 70, tension: 0 } }));
   const [ outsideParentsData, setOutsideParentsData ] = useState([]);
   const [ childrenData, setChildrenData ] = useState([]);
@@ -39,7 +39,7 @@ const AromaWheel = (props) => {
   ];
 
   useLayoutEffect(() => {
-    if (ref.current) {
+    if (!props.criteria && ref.current) {
       const rect = ref.current.getBoundingClientRect();
       setCriteria({ top: rect.y + criteria.top, bottom: rect.y + criteria.bottom, center: rect.x + (width / 2) });
     }
