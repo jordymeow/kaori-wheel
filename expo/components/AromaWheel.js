@@ -1,10 +1,11 @@
 import React, { useEffect, useMemo, useState, useRef, useLayoutEffect } from 'react';
 import { useSpring, animated } from 'react-spring';
-import { useDrag } from 'react-use-gesture';
+// import { useDrag } from 'react-use-gesture';
 import Pie from './Pie';
 import { LabelTypes, LabelAligns } from './Label';
 import Svg from 'react-native-svg';
 import { View } from 'react-native';
+import { PanGestureHandler, State } from 'react-native-gesture-handler';
 
 const DragPosition = {
   top: 'top',
@@ -20,7 +21,6 @@ const DragState = {
 const AnimatedView = animated(View);
 
 const AromaWheel = (props) => {
-  const ref = useRef();
   const { aromas, aromaGroups, onSelect, onUnselect, width, criteria } = props;
   const diameter = 800;
   const scale = width / diameter;
@@ -43,19 +43,27 @@ const AromaWheel = (props) => {
   // --------------------
   // Animation Settings
   // --------------------
-  const bind = useDrag(
-    ({ down, movement: [mx, my], xy: [posX, posY], velocity }) => {
-      let position = currentPosition.value;
-      if (previousDown.value === DragState.up && down) {
-        position = posY < criteria.top ? DragPosition.top
-          : (posY > criteria.bottom ? DragPosition.bottom : false);
-        if (!position) {
-          position = posX < criteria.center ? DragPosition.left : DragPosition.right;
-        }
+  const onHandlerStateChange = (event) => {
+    let position = currentPosition.value;
+    const mx = event.nativeEvent.translationX;
+    const my = event.nativeEvent.translationY;
+    const velocityX = event.nativeEvent.velocityX;
+    const velocityY = event.nativeEvent.velocityY;
+    const posX = event.nativeEvent.absoluteX;
+    const posY = event.nativeEvent.absoluteY;
+    if (event.nativeEvent.state === State.BEGAN) {
+      position = posY < criteria.top ? DragPosition.top
+        : (posY > criteria.bottom ? DragPosition.bottom : false);
+      if (!position) {
+        position = posX < criteria.center ? DragPosition.left : DragPosition.right;
       }
+    }
+    if (event.nativeEvent.state === State.ACTIVE || event.nativeEvent.state === State.CANCELLED) {
+      const down = event.nativeEvent.state === State.ACTIVE;
+      const velocity = horizontalDragPositions.includes(position) ? velocityY : velocityX;
       const targetMovement = horizontalDragPositions.includes(position) ? my : mx;
-      const movementRate = down || velocity < 1 ? 200 : 100;
-      const calculatedX = targetMovement / movementRate * scale;
+      const movementRate = 300; //down || velocity < 1 ? 200 : 100;
+      const calculatedX = targetMovement; //targetMovement / movementRate * scale;
       const nextPreviousX = clockwiseDragPositions.includes(position) ? previousX.value + calculatedX : previousX.value - calculatedX;
       const x = clockwiseDragPositions.includes(position) ? previousX.value + calculatedX : previousX.value - calculatedX;
       const config = { friction: 70, tension: down || velocity < 1 ? 0 : 300 };
@@ -67,7 +75,32 @@ const AromaWheel = (props) => {
         config
       });
     }
-  );
+  };
+  // const bind = useDrag(
+  //   ({ down, movement: [mx, my], xy: [posX, posY], velocity }) => {
+  //     let position = currentPosition.value;
+  //     if (previousDown.value === DragState.up && down) {
+  //       position = posY < criteria.top ? DragPosition.top
+  //         : (posY > criteria.bottom ? DragPosition.bottom : false);
+  //       if (!position) {
+  //         position = posX < criteria.center ? DragPosition.left : DragPosition.right;
+  //       }
+  //     }
+  //     const targetMovement = horizontalDragPositions.includes(position) ? my : mx;
+  //     const movementRate = down || velocity < 1 ? 200 : 100;
+  //     const calculatedX = targetMovement / movementRate * scale;
+  //     const nextPreviousX = clockwiseDragPositions.includes(position) ? previousX.value + calculatedX : previousX.value - calculatedX;
+  //     const x = clockwiseDragPositions.includes(position) ? previousX.value + calculatedX : previousX.value - calculatedX;
+  //     const config = { friction: 70, tension: down || velocity < 1 ? 0 : 300 };
+  //     set({
+  //       previousX: down ? previousX.value : nextPreviousX,
+  //       previousDown: down ? DragState.down : DragState.up,
+  //       currentPosition: position,
+  //       x,
+  //       config
+  //     });
+  //   }
+  // );
 
   // --------------------
   // Select/Unselect
@@ -182,23 +215,25 @@ const AromaWheel = (props) => {
 
   return (
     <>
-      <View ref={ref} style={{ width: width, height: width, overflow: "hidden"}}>
+      <View style={{ width: width, height: width, overflow: "hidden"}}>
+          <PanGestureHandler onHandlerStateChange={onHandlerStateChange}>
         <View style={{ width: diameter, height: diameter, transform: [{ scale: scale}, {translateX: transformValue }, {translateY: transformValue }] }}>
-          <AnimatedView
-            {...bind()}
-            style={{
-              transform: x.interpolate((x) => [{ matrix: [Math.cos(-x), Math.sin(x), 0, 0, Math.sin(-x), Math.cos(-x), 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]}]),
-            }}
-          >
-            <Svg width={diameter} height={diameter} viewBox={`0 0 ${diameter} ${diameter}`} xmlns="http://www.w3.org/2000/svg" version="1.1" style={{ display: "flex", justifyContent: "center", transform: [{ rotate: "-90deg"}] }}>
-              {outsideParentsWheel}
-              {childrenWheel}
-              {insideParentsWheel}
-              {groupWheel}
-              {centerWheel}
-            </Svg>
-          </AnimatedView>
+            <AnimatedView
+              // {...bind()}
+              style={{
+                transform: x.interpolate((x) => [{ matrix: [Math.cos(-x), Math.sin(x), 0, 0, Math.sin(-x), Math.cos(-x), 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]}]),
+              }}
+            >
+              <Svg width={diameter} height={diameter} viewBox={`0 0 ${diameter} ${diameter}`} xmlns="http://www.w3.org/2000/svg" version="1.1" style={{ display: "flex", justifyContent: "center", transform: [{ rotate: "-90deg"}] }}>
+                {outsideParentsWheel}
+                {childrenWheel}
+                {insideParentsWheel}
+                {groupWheel}
+                {centerWheel}
+              </Svg>
+            </AnimatedView>
         </View>
+          </PanGestureHandler>
       </View>
     </>
   );
