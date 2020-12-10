@@ -17,12 +17,14 @@ const DragState = {
   up: 'up'
 };
 
+const AnimatedView = animated(View);
+
 const AromaWheel = (props) => {
   const ref = useRef();
-  const { aromas, aromaGroups, onSelect, onUnselect, width } = props;
+  const { aromas, aromaGroups, onSelect, onUnselect, width, criteria } = props;
   const diameter = 800;
   const scale = width / diameter;
-  const [ criteria, setCriteria ] = useState(props.criteria ?? { top: width / 5, bottom: width * (4 / 5), center: width / 2 });
+  const transformValue = width === diameter ? 0 : - (((diameter - width) / 2) / scale);
   const [{ x, previousX, currentPosition, previousDown }, set] = useSpring(() => ({ x: 0, previousX: 0, previousDown: DragState.up, currentPosition: DragPosition.top, config: { friction: 70, tension: 0 } }));
   const [ outsideParentsData, setOutsideParentsData ] = useState([]);
   const [ childrenData, setChildrenData ] = useState([]);
@@ -37,13 +39,6 @@ const AromaWheel = (props) => {
     DragPosition.top,
     DragPosition.right
   ];
-
-  useLayoutEffect(() => {
-    if (!props.criteria && ref.current) {
-      const rect = ref.current.getBoundingClientRect();
-      setCriteria({ top: rect.y + criteria.top, bottom: rect.y + criteria.bottom, center: rect.x + (width / 2) });
-    }
-  }, []);
 
   // --------------------
   // Animation Settings
@@ -187,22 +182,22 @@ const AromaWheel = (props) => {
 
   return (
     <>
-      <View ref={ref} style={{ width: width, height: width, overflow: "hidden" }}>
-        <View style={{ width: diameter, height: diameter, transform: `scale(${scale})`, transformOrigin: 'left top' }}>
-          <animated.View
+      <View ref={ref} style={{ width: width, height: width, overflow: "hidden"}}>
+        <View style={{ width: diameter, height: diameter, transform: [{ scale: scale}, {translateX: transformValue }, {translateY: transformValue }] }}>
+          <AnimatedView
             {...bind()}
             style={{
-              transform: x.interpolate((x) => `matrix3d(${Math.cos(-x)}, ${Math.sin(x)}, 0, 0, ${Math.sin(-x)}, ${Math.cos(-x)}, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1)`),
+              transform: x.interpolate((x) => [{ matrix: [Math.cos(-x), Math.sin(x), 0, 0, Math.sin(-x), Math.cos(-x), 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]}]),
             }}
           >
-            <Svg width={diameter} height={diameter} viewBox={`0 0 ${diameter} ${diameter}`} xmlns="http://www.w3.org/2000/svg" version="1.1" style={{ display: "flex", justifyContent: "center", transform: "rotate(-90deg)" }}>
+            <Svg width={diameter} height={diameter} viewBox={`0 0 ${diameter} ${diameter}`} xmlns="http://www.w3.org/2000/svg" version="1.1" style={{ display: "flex", justifyContent: "center", transform: [{ rotate: "-90deg"}] }}>
               {outsideParentsWheel}
               {childrenWheel}
               {insideParentsWheel}
               {groupWheel}
               {centerWheel}
             </Svg>
-          </animated.View>
+          </AnimatedView>
         </View>
       </View>
     </>

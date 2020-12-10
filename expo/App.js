@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View, Dimensions } from 'react-native';
 
 import AromaWheel from './components/AromaWheel';
 import { LabelTypes } from './components/Label';
+
+const window = Dimensions.get('window');
+const screen = Dimensions.get('screen');
 
 export default function App() {
 
@@ -798,6 +801,9 @@ export default function App() {
 
   const [aromas, setAromas] = useState(defaultAromas);
   const [selectedAromas, setSelectedAromas] = useState([]);
+  const [dimensions, setDimensions] = useState({ window, screen });
+  const [wheelWidth, setWheelWidth] = useState(window.width);
+  const [criteria, setCriteria] = useState({ top: wheelWidth / 5, bottom: wheelWidth * (4 / 5), center: wheelWidth / 2 });
 
   const updateAromas = (aroma, group, isSelected) => {
     const newAromas = aromas.map(v => {
@@ -816,13 +822,33 @@ export default function App() {
   useEffect(() => {
     const newSelectedAromas = aromas.flatMap(v => v.children).filter(v => v.selected).map(v => v.name);
     setSelectedAromas(newSelectedAromas);
-  }, [aromas])
+  }, [aromas]);
+
+  useEffect(() => {
+    if (!dimensions || !wheelWidth) return;
+
+    const container = dimensions.window;
+    const wheelY = (container.height / 2) - (wheelWidth / 2);
+    setCriteria({ top: wheelY + (wheelWidth / 5), bottom: wheelY + (wheelWidth * (4 / 5)), center: wheelWidth / 2 });
+  }, [dimensions, wheelWidth]);
+
+  const onChange = ({ window, screen }) => {
+    setDimensions({ window, screen });
+    setWheelWidth(window.width);
+  };
+
+  useEffect(() => {
+    Dimensions.addEventListener('change', onChange);
+    return () => {
+      Dimensions.removeEventListener('change', onChange);
+    };
+  });
 
   return (
     <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
       <AromaWheel
-        width={800}
+        criteria={criteria}
+        width={wheelWidth}
         onSelect={({ aroma, group }) => {
           console.log("onSelect", aroma, group);
           updateAromas(aroma, group, true);
